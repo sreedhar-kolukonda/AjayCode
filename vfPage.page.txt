@@ -1,4 +1,4 @@
-<apex:page sidebar="false" docType="html-5.0" controller="assignTracksAndLCsPageController"> 
+Test<apex:page sidebar="false" docType="html-5.0" controller="assignTracksAndLCsPageController"> 
 <!--jQuery TO SHOW THE NEW ACCOUNT FORM ON BUTTON CLICK-->
 <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
 <!--SLDS STYLESHEET STATIC RESOURCE-->
