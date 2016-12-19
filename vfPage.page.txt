@@ -1,0 +1,301 @@
+<apex:page sidebar="false" docType="html-5.0" controller="assignTracksAndLCsPageController"> 
+<!--jQuery TO SHOW THE NEW ACCOUNT FORM ON BUTTON CLICK-->
+<script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+<!--SLDS STYLESHEET STATIC RESOURCE-->
+<apex:stylesheet value="{!URLFOR($Resource.LDS, 'assets/styles/salesforce-lightning-design-system-vf.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.slds, 'slds.css')}" />
+<apex:stylesheet value="{!URLFOR($Resource.button, 'button.css')}" />
+
+<html xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">  
+
+
+<script type="text/javascript">
+        function selectAllCheckboxes(obj,receivedInputID){
+            var inputCheckBox = document.getElementsByTagName("input");                  
+            for(var i=0; i<inputCheckBox.length; i++){          
+                if(inputCheckBox[i].id.indexOf(receivedInputID)!=-1){                                     
+                    inputCheckBox[i].checked = obj.checked;
+                }
+            }
+        }  
+ 
+   
+</script> 
+
+
+
+ 
+<style>
+.msgIcon {
+    display: none!important
+}
+.customMessage * {
+    color: #fff!important
+}
+.customMessage {
+    margin: 5px 0!important;
+    //max-width: 1280px;
+    opacity: 1!important;
+    width: 100%;
+    font-size: 12px;
+    border: 0px;
+    padding-left: 10px;
+}
+
+</style>
+ 
+ 
+
+        
+   
+<apex:actionStatus id="statusSaveTrip" stopText="">
+                <apex:facet name="start">
+                    <div>
+                        <div class="popupBackground" />
+                        <div class="PopupPanel">
+                            <div class="slds"> 
+                              <div class="slds-spinner_container">
+                              <div class="slds-spinner--brand slds-spinner slds-spinner--medium" role="alert">
+                                <span class="slds-assistive-text">Loading</span>
+                                <div class="slds-spinner__dot-a"></div>
+                                <div class="slds-spinner__dot-b"></div>
+                              </div>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                </apex:facet>
+</apex:actionStatus>
+<body>
+
+  
+<!-- REQUIRED SLDS WRAPPER -->
+  <div class="slds"> 
+  
+<!-- PAGE HEADER -->
+<div class="slds-page-header" role="banner">
+
+  <!-- LAYOUT GRID -->
+  <div class="slds-grid">
+
+    <!-- GRID COL -->
+    <div class="slds-col">
+
+      <!-- HEADING AREA -->
+      <!-- MEDIA OBJECT = FIGURE + BODY -->
+        <div class="slds-media">
+        
+          <div class="slds-media__figure">
+          <span class="slds-icon__container slds-icon__container--circle slds-icon-action-description">
+          <svg aria-hidden="true" class="slds-icon slds-icon--medium ">
+            <use xlink:href="{!URLFOR($Resource.LDS, '/assets/icons/action-sprite/svg/symbols.svg#new_custom43')}"></use>
+          </svg></span>
+          </div>
+        
+          <div class="slds-media__body">
+            <p class="slds-text-heading--label">Engagements</p>
+            <h1 class="slds-text-heading--medium">Edit LCs and Tracks</h1>
+          </div>
+        
+        </div>
+      <!-- / MEDIA OBJECT -->
+      <!-- /HEADING AREA -->
+
+    </div>
+    <!-- /GRID COL -->
+    
+    <!-- GRID COL 
+    <div id="newAct" class="slds-col slds-no-flex slds-align-middle">
+
+        <button class="slds-button slds-button--neutral">
+          New Account
+        </button>
+
+    </div>-->
+    <!-- / GRID COL -->
+
+  </div>
+  <!-- / LAYOUT GRID -->
+  
+</div>
+<!-- / PAGE HEADER -->
+
+<!-- CREATE NEW ACCOUNT / 
+    STYLE IS DESPLAY NONE TO HIDE THE FORM INITIALLY AND WE USE THE ID TO MAKE IT VISIBLE WHEN THE NEW ACCOUNT BUTTON IS CLICKED-->
+    
+ <div id="actFrm" aria-labelledby="newaccountform">
+    <!-- BOXED AREA -->
+    <fieldset class="slds-box slds-theme--default slds-container">
+      <legend id="newaccountform" class="slds-text-heading--medium slds-p-vertical--large">Engagement LC and Track Details</legend>
+<apex:form >
+<apex:outputPanel id="messagesPanel">
+<script>
+    $(document).ready(function(){
+       overridePageMessages();    
+    });
+        
+    function overridePageMessages(){    
+        var textureEffect = '';
+        //Uncomment below line for texture effect on page messages
+        //textureEffect = 'slds-theme--alert-texture';
+                     
+        $('.warningM3').addClass('slds-notify slds-notify--toast slds-theme--warning customMessage '+textureEffect);          
+        $('.confirmM3').addClass('slds-notify slds-notify--alert slds-theme--success  customMessage '+textureEffect);    
+        $('.errorM3').addClass('slds-notify slds-notify--alert slds-theme--error customMessage '+textureEffect);                  
+        $('.infoM3').addClass('slds-notify slds-notify--toast customMessage '+textureEffect);    
+                         
+        $('.errorM3').removeClass('errorM3'); 
+        $('.confirmM3').removeClass('confirmM3'); 
+        $('.infoM3').removeClass('infoM3');   
+        $('.warningM3').removeClass('warningM3');  
+    }
+</script>
+<!--<apex:messages styleClass="slds-notify slds-notify--alert slds-theme--error customMessage" />-->
+<apex:pagemessages /> 
+</apex:outputPanel>
+      <!-- CREATE NEW ACCOUNT FORM-->      
+       <fieldset class="slds-form--compound">  
+       <legend class="slds-form-element__label slds-text-title--caps"><b>Engagement Details</b></legend>                    
+                      <div class="form-element__group">  
+                        <div class="slds-form-element__row slds-large-show">
+                          <label class="slds-form-element__control slds-size--1-of-2" style="width: 49.8%;">
+                            <span class="slds-form-element__helper">Cohort:</span>                                                      
+                            <apex:selectList styleclass="slds-input" value="{!selectedCohort}" size="1" id="coho">                          
+                                 <apex:selectOptions value="{!cohortOptions}"/>
+                                 <apex:actionSupport event="onchange" action="{!lcOptionslist}" rerender="lcmain">                                                                                                                                                                                                          
+                                 </apex:actionSupport>
+                           </apex:selectList>
+                          </label>  
+                          <label class="slds-form-element__control slds-size--1-of-2" style="width: 49.8%;">
+                            <span class="slds-form-element__helper">Site:</span>                                                      
+                            <apex:selectList styleclass="slds-input" value="{!selectedSite}" size="1">                          
+                                 <apex:selectOptions value="{!siteOptions}"/>
+                           </apex:selectList>
+                          </label>
+                          <label class="slds-form-element__control slds-size--1-of-2" style="width: 49.8%;">
+                            <span class="slds-form-element__helper">View:</span>                                                      
+                            <apex:selectList styleclass="slds-input" value="{!assignUassign}" size="1">                          
+                                 <apex:selectOptions value="{!assignUassignOptions}"/>
+                           </apex:selectList>
+                          </label>                  
+                        </div> 
+                        <legend class="slds-form-element__label slds-text-title--caps"><b>Track Details</b></legend>   
+                        <div class="slds-form-element__row slds-large-show">
+                          <label class="slds-form-element__control slds-size--1-of-2" style="width: 49.8%;">
+                            <span class="slds-form-element__helper">Learning Community:</span>                                                      
+                            <apex:selectList id="lcmain" styleclass="slds-input" value="{!globalselectedLC}" size="1">                          
+                                 <apex:selectOptions value="{!lcOptions}"/>
+                                 <apex:actionSupport event="onchange" action="{!applyGlobalchanges}" rerender="lcoption" >                                                       
+                                 </apex:actionSupport>
+                           </apex:selectList>
+                          </label> 
+                          <label class="slds-form-element__control slds-size--1-of-2" style="width: 49.8%;">
+                            <span class="slds-form-element__helper">Specialty Assignment:</span>                                                      
+                            <apex:selectList id="trackmain" styleclass="slds-input" value="{!globalselectedTrack}" size="1">                          
+                                 <apex:selectOptions value="{!trackOptions}"/>
+                                 <apex:actionSupport event="onchange" action="{!applyGlobalchanges}" rerender="trackassignment,Strackassignment">                                                                                                               
+                                 </apex:actionSupport>
+                           </apex:selectList>
+                          </label>                         
+                        </div>                      
+                      </div>
+                    </fieldset> 
+               
+              <div class="slds-modal__footer">
+              <!--<div class="slds-docked-form-footer slds-button-group slds-float--right" role="group">  
+                   <apex:commandButton styleClass="slds-button slds-button--brand" id="filter" value="Go"  action="{!fetchEngagements}" reRender="studentTable,studentTable1,messagesPanel,updateBtn" status="statusSaveTrip"/> &nbsp;
+                  <apex:commandButton styleClass="slds-button slds-button--brand" value="Update Records" action="{!updateEngagements}" rerender="myForm,thePanelWrapper,messagesPanel" status="statusSaveTrip" />   
+              </div>--> 
+                   <apex:commandButton styleClass="slds-button slds-button--brand" id="filter" value="Go"  action="{!fetchEngagements}" reRender="studentTable,studentTable1,messagesPanel,updateBtn" status="statusSaveTrip"/> 
+                  <apex:commandButton styleClass="slds-button slds-button--brand" value="Update Records" action="{!updateEngagements}" rerender="myForm,thePanelWrapper,messagesPanel,trackassignment,Strackassignment" status="statusSaveTrip" />   
+                 
+              </div>               
+      <br/>      
+        <apex:outputpanel id="studentTable1">
+            <apex:outputPanel id="datePanelContainer1" rendered="{!IF(wrapList.size>0,true,false)}">
+                <div class="slds-card">
+                      <div class="slds-card__header slds-grid">
+                        <div class="slds-media slds-media--center slds-has-flexi-truncate">
+                          <div class="slds-media__figure slds-icon slds-icon-standard-contact slds-icon--small">
+                            <img src="/resource/LDS/assets/icons/standard/contact_60.png" alt="Placeholder" />
+                          </div>
+                          <div class="slds-media__body">
+                            <h2 class="slds-text-heading--small slds-truncate">Engagement ({!wrapList.size})</h2>
+                          </div>
+                        </div>                        
+                      </div>
+                      <div class="slds-card__body">
+                        <table class="slds-table slds-table--bordered slds-max-medium-table--stacked-horizontal slds-no-row-hover">
+                          <thead>
+                            <tr class="slds-text-title--caps">
+                              <th class="slds-cell-shrink" scope="col">
+                                <label class="slds-checkbox">
+                                  <input type="checkbox" name="options" onchange="selectAllCheckboxes(this,'inputId')" />
+                                  <span class="slds-checkbox--faux"></span>
+                                  <span class="slds-assistive-text">Select All</span>
+                                </label>
+                              </th>
+                              <th><b>Student Engagement</b></th>
+                              <th><b>Student Full Name</b></th>
+                              <th><b>Learning Community</b></th>
+                              <th><b>Specialty Interest</b></th>
+                              <th><b>Specialty Assignment</b></th>
+                              <th><b>Secondary Specialty Assignment</b> </th>                              
+                              <th class="slds-cell-shrink" scope="col"></th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <apex:repeat value="{!wrapList}" var="e">
+                                <tr class="slds-hint-parent">
+                                  <td role="gridcell" class="slds-cell-shrink" data-label="Select row Engagement">
+                                    <label class="slds-checkbox">                          
+                                      <apex:inputCheckbox value="{!e.selected}" id="inputId" />          
+                                      <span class="slds-checkbox--faux"></span>
+                                      <span class="slds-assistive-text">Select row Engagement</span>
+                                    </label>
+                                  </td>         
+                                  <td role="gridcell" data-label="Account Name">
+                                    <div class="slds-truncate" title="Cloudhub"><apex:outputText value="{!e.eng.name}" /></div>
+                                  </td> 
+                                  <td><apex:outputText value="{!e.eng.Student_Full_Name__c}" id="studentName" /></td>   
+                                  <td>
+                                    <apex:selectList styleclass="slds-input" value="{!e.selectedLC}" size="1" id="lcoption">                                                                              
+                                          <apex:selectOptions value="{!e.selectedCLC}"/> 
+                                          <apex:param value="{!e.rowcount}" assignTo="{!count}" name="count"/> 
+                                    </apex:selectList>
+                                  </td>                   
+                                  <td><apex:outputText value="{!e.eng.Prospect_Track_Interest__c }" /></td>  
+                                  <td>
+                                      <apex:outputPanel id="trackassignment">                                    
+                                              <div style="{!e.specialCheck}" class="slds-form-element">                                      
+                                              <div class="slds-form-element__control slds-picklist">
+                                                <apex:inputfield styleclass="slds-select " value="{!e.eng.Track_Assignment__c}"/>
+                                             </div>
+                                            </div>
+                                    </apex:outputPanel> 
+                                  </td>  
+                                  <td> 
+                                  <apex:outputPanel id="Strackassignment">
+                                       <div style="{!e.secondSpecialCheck}" class="slds-form-element">                                      
+                                              <div class="slds-form-element__control slds-picklist">
+                                     <apex:inputfield styleclass="slds-select " value="{!e.eng.Secondary_Specialty_Assignment__c}"/>
+                                      </div>
+                                       </div>
+                                   </apex:outputPanel>      
+                                  </td>                                  
+                                </tr>  
+                            </apex:repeat>
+                          </tbody>
+                        </table>
+                      </div>                      
+                    </div>  
+                 </apex:outputPanel>
+            </apex:outputPanel>    
+        </apex:form>
+    </fieldset>
+  </div>  
+  </div>
+  </body>  
+  </html>
+  </apex:page>
+                                     
